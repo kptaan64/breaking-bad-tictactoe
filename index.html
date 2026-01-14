@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breaking Bad – Tic Tac Toe</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bb-green: #1e7f43;
+      --bb-dark: #0b1f14;
+      --bb-light: #c7f9cc;
+      --bb-yellow: #f4e04d;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #123c2a, #020b07 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bb-light);
+    }
+
+    .game-container {
+      background: linear-gradient(145deg, #0f2e1f, #07160f);
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 0 25px rgba(30, 127, 67, 0.6);
+      text-align: center;
+      width: 340px;
+    }
+
+    .title {
+      font-size: 26px;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      color: var(--bb-yellow);
+      text-shadow: 0 0 10px rgba(244, 224, 77, 0.6);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-bottom: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .cell {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(145deg, #143d2b, #0b2016);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      cursor: pointer;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.6),
+                  0 0 10px rgba(30, 127, 67, 0.4);
+      transition: all 0.25s ease;
+    }
+
+    .cell:hover {
+      transform: scale(1.05);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.7),
+                  0 0 18px rgba(199, 249, 204, 0.7);
+    }
+
+    .cell.x {
+      color: #9ef5cf;
+      text-shadow: 0 0 12px rgba(158, 245, 207, 0.9);
+    }
+
+    .cell.o {
+      color: var(--bb-yellow);
+      text-shadow: 0 0 12px rgba(244, 224, 77, 0.9);
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .reset-btn {
+      margin-top: 15px;
+      padding: 10px 18px;
+      background: linear-gradient(145deg, #1e7f43, #145a32);
+      border: none;
+      border-radius: 10px;
+      color: #eafff3;
+      font-size: 13px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(30, 127, 67, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .reset-btn:hover {
+      background: linear-gradient(145deg, #28a05a, #1e7f43);
+      box-shadow: 0 0 25px rgba(40, 160, 90, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      margin-top: 15px;
+      font-size: 11px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container">
+    <div class="title">BREAKING BAD</div>
+    <div class="subtitle">Heisenberg's Tic Tac Toe</div>
+
+    <div class="board" id="board">
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+      <div class="cell"></div>
+    </div>
+
+    <div class="status" id="status">Player X's turn</div>
+
+    <button class="reset-btn" onclick="resetGame()">RESET LAB</button>
+
+    <div class="footer">Say my name.</div>
+  </div>
+
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const statusText = document.getElementById('status');
+
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let board = Array(9).fill('');
+
+    const winConditions = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    cells.forEach((cell, index) => {
+      cell.addEventListener('click', () => handleCellClick(cell, index));
+    });
+
+    function handleCellClick(cell, index) {
+      if (!gameActive || board[index] !== '') return;
+
+      board[index] = currentPlayer;
+      cell.textContent = currentPlayer;
+      cell.classList.add(currentPlayer.toLowerCase());
+
+      if (checkWin()) {
+        statusText.textContent = `Player ${currentPlayer} wins the lab!`;
+        gameActive = false;
+        return;
+      }
+
+      if (!board.includes('')) {
+        statusText.textContent = 'It\'s a chemical draw!';
+        gameActive = false;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      statusText.textContent = `Player ${currentPlayer}'s turn`;
+    }
+
+    function checkWin() {
+      return winConditions.some(condition => {
+        return condition.every(index => board[index] === currentPlayer);
+      });
+    }
+
+    function resetGame() {
+      board = Array(9).fill('');
+      gameActive = true;
+      currentPlayer = 'X';
+      statusText.textContent = "Player X's turn";
+      cells.forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('x', 'o');
+      });
+    }
+  </script>
+
+</body>
+</html>
